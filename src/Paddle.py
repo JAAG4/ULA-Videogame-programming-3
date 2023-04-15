@@ -31,6 +31,8 @@ class Paddle:
         # The paddle only move horizontally
         self.vx = 0
 
+        self.addons = []
+
     def resize(self, size: int) -> None:
         self.size = size
         self.width = (self.size + 1) * 32
@@ -44,13 +46,24 @@ class Paddle:
     def get_collision_rect(self) -> pygame.Rect:
         return pygame.Rect(self.x, self.y, self.width, self.height)
 
-    def update(self, dt: float) -> None:
+    def update(self, dt: float, *args, **kwargs) -> None:
         next_x = self.x + self.vx * dt
-
         if self.vx < 0:
             self.x = max(0, next_x)
         else:
             self.x = min(settings.VIRTUAL_WIDTH - self.width, next_x)
+        self.addons = [addon for addon in self.addons if addon.in_play]
+        for obj in self.addons:
+            obj.update(dt=dt, play_state=kwargs.get("play_state"))
 
-    def render(self, surface: pygame.Surface) -> None:
+    def render(self, surface: pygame.Surface, *args, **kwargs) -> None:
         surface.blit(self.texture, (self.x, self.y), self.frames[self.skin][self.size])
+        surface.blit(
+            self.texture,
+            (self.x, self.y),
+            self.frames[self.skin][self.size],
+            special_flags=kwargs.get("blend_mode", 0),
+        )
+        self.addons = [addon for addon in self.addons if addon.in_play]
+        for obj in self.addons:
+            obj.render(surface, *args, **kwargs)
