@@ -127,6 +127,20 @@ class PlayState(BaseState):
                 )
                 brick_has_generated_powerup = True
 
+            # $ Chance to generate LifeDown
+            if (
+                self.lives > 1
+                and not brick_has_generated_powerup
+                and random.random() < 0.1
+            ):
+                r = brick.get_collision_rect()
+                self.powerups.append(
+                    self.powerups_abstract_factory.get_factory("LifeDown").create(
+                        r.centerx - 8, r.centery - 8
+                    )
+                )
+                brick_has_generated_powerup = True
+
         # Removing all balls that are not in play
         self.balls = [ball for ball in self.balls if ball.in_play]
 
