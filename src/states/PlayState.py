@@ -18,6 +18,9 @@ from gale.text import render_text
 
 import settings
 import src.powerups
+from src.Rocket import Rocket
+from src.PaddleAddons import RocketLauncher
+
 
 class PlayState(BaseState):
     def enter(self, **params: dict):
@@ -55,7 +58,7 @@ class PlayState(BaseState):
             ball.solve_world_boundaries()
 
             # Check collision with the paddle
-            if ball.collides(self.paddle):
+            if ball.collides(self.paddle) and not isinstance(ball, Rocket):
                 settings.SOUNDS["paddle_hit"].stop()
                 settings.SOUNDS["paddle_hit"].play()
                 ball.rebound(self.paddle)
@@ -73,6 +76,10 @@ class PlayState(BaseState):
             brick.hit()
             self.score += brick.score()
             ball.rebound(brick)
+            if isinstance(ball, Rocket):
+                ball.in_play = False
+            # endregion
+            # region Point-Upgrades
 
             # Check earn life
             if self.score >= self.points_to_next_live:
@@ -89,14 +96,32 @@ class PlayState(BaseState):
                 )
                 self.paddle.inc_size()
 
-            # Chance to generate two more balls
-            if random.random() < 0.7:
+            # endregion
+            # region PowerUps
+            brick_has_generated_powerup = False
+
                 r = brick.get_collision_rect()
                 self.powerups.append(
                     self.powerups_abstract_factory.get_factory("TwoMoreBall").create(
                         r.centerx - 8, r.centery - 8
                     )
                 )
+            # $ Chance to generate Rockets
+            hasrocket = [
+                add for add in self.paddle.addons if isinstance(add, RocketLauncher)
+            ]
+            if (
+                not hasrocket
+                and not brick_has_generated_powerup
+                and random.random() < 0.1
+            ):
+                r = brick.get_collision_rect()
+                self.powerups.append(
+                    self.powerups_abstract_factory.get_factory("Rockets").create(
+                        r.centerx - 8, r.centery - 8
+                    )
+                )
+                brick_has_generated_powerup = True
 
         # Removing all balls that are not in play
         self.balls = [ball for ball in self.balls if ball.in_play]
