@@ -51,7 +51,8 @@ class PlayState(BaseState):
         InputHandler.unregister_listener(self)
 
     def update(self, dt: float) -> None:
-        self.paddle.update(dt)
+        self.paddle.update(dt, play_state=self)
+        # region Bricks
 
         for ball in self.balls:
             ball.update(dt)
