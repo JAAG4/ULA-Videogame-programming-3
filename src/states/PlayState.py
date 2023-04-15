@@ -233,3 +233,9 @@ class PlayState(BaseState):
                 live_factor=self.live_factor,
                 powerups=self.powerups,
             )
+
+        if input_id == "action":
+            if input_data.released:
+                # print("Trigger addons")
+                for addon in self.paddle.addons:
+                    addon.addon_action(play_state=self)
