@@ -67,6 +67,8 @@ SOUNDS = {
     "life": pygame.mixer.Sound(BASE_DIR / "sounds" / "life.wav"),
     "grow_up": pygame.mixer.Sound(BASE_DIR / "sounds" / "grow_up.wav"),
     "pause": pygame.mixer.Sound(BASE_DIR / "sounds" / "pause.wav"),
+    "rocket_launch": pygame.mixer.Sound(BASE_DIR / "sounds" / "explosion.wav"),
+    "power_down": pygame.mixer.Sound(BASE_DIR / "sounds" / "hitHurt.wav"),
 }
 
 TEXTURES = {
