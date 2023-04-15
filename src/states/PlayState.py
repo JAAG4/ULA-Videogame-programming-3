@@ -100,12 +100,16 @@ class PlayState(BaseState):
             # region PowerUps
             brick_has_generated_powerup = False
 
+            # $ Chance to generate two more balls
+            if not brick_has_generated_powerup and random.random() < 0.1:
                 r = brick.get_collision_rect()
                 self.powerups.append(
                     self.powerups_abstract_factory.get_factory("TwoMoreBall").create(
                         r.centerx - 8, r.centery - 8
                     )
                 )
+                brick_has_generated_powerup = True
+
             # $ Chance to generate Rockets
             hasrocket = [
                 add for add in self.paddle.addons if isinstance(add, RocketLauncher)
