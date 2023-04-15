@@ -119,3 +119,46 @@ class RocketLauncher(PaddleAddon):
             self.offset_x = self.paddle.width
         super().update()
 
+
+class StickyPaddle(PaddleAddon):
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        paddle,
+        offset_x: int = 0,
+        offset_y: int = -2,
+        play_state=None,
+    ) -> None:
+        super().__init__(x, y, paddle, offset_x, offset_y)
+        self.stuck_balls = []
+        self.play_state = play_state
+        self.width = paddle.width + 1
+        self.height = paddle.height + 2
+        self.texture = settings.TEXTURES["spritesheet"]
+        self.frames = settings.FRAMES["paddles"][0][paddle.size]
+
+    def update(self, *args, **kwargs) -> NoReturn:
+        self.width = self.paddle.width
+        self.height = self.paddle.height
+        for ball in self.play_state.balls:
+            if ball.collides(self) and not isinstance(ball, Rocket):
+                self.stuck_balls.append([ball, (self.x - ball.x)])
+        for ball in self.stuck_balls:
+            ball[0].vx = 0
+            ball[0].vy = 0
+            ball[0].x = self.x - ball[1]
+        super().update(*args, **kwargs)
+
+    def get_collision_rect(self) -> pygame.Rect:
+        return pygame.Rect(self.x, self.y, self.width, self.height)
+
+    def render(self, surface):
+        pass
+
+    def addon_action(self, *args, **kwargs):
+        for ball in self.stuck_balls:
+            ball[0].vx = randint(-80, 80)
+            ball[0].vy = randint(-170, -100)
+        self.stuck_balls = []
+        self.in_play = False
